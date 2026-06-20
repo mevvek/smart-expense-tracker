@@ -12,6 +12,9 @@ app.use(express.json())
 const expenseRoutes = require("./routes/expenses")
 app.use("/api/expenses", expenseRoutes)
 
+const insightRoutes = require("./routes/insights")
+app.use("/api/insights", insightRoutes)
+
 // MongoDB connect
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))

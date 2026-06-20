@@ -1,4 +1,5 @@
 "use client"
+import AIInsights from "./components/AIInsights"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { getExpenses } from "../lib/api"
@@ -36,6 +37,7 @@ export default function Dashboard() {
 
         {/* Stats Cards */}
         <StatsCards expenses={expenses} />
+        <AIInsights expenses={expenses} />
 
         {/* Tabs */}
         <div className="flex gap-2 mb-4">

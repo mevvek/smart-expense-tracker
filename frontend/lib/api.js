@@ -25,3 +25,11 @@ export async function getStats() {
   const res = await fetch(`${API_URL}/api/expenses/stats`)
   return res.json()
 }
+export async function getInsights(expenses) {
+  const res = await fetch(`${API_URL}/api/insights`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ expenses })
+  })
+  return res.json()
+}
