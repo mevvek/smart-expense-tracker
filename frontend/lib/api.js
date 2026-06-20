@@ -1,10 +1,14 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 
 export async function getExpenses() {
-  const res = await fetch(`${API_URL}/api/expenses`)
-  return res.json()
+  try {
+    const res = await fetch(`${API_URL}/api/expenses`)
+    const data = await res.json()
+    return Array.isArray(data) ? data : []
+  } catch (err) {
+    return []
+  }
 }
-
 export async function addExpense(data) {
   const res = await fetch(`${API_URL}/api/expenses`, {
     method: "POST",

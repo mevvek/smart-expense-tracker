@@ -21,9 +21,15 @@ export default function ExpenseList({ expenses, onDelete }) {
 
   if (expenses.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-400">
-        <p className="text-4xl mb-2">💸</p>
-        <p>No expenses yet — add your first one!</p>
+      <div className="text-center py-16 bg-white rounded-xl shadow-sm">
+        <p className="text-5xl mb-4">💸</p>
+        <p className="text-lg font-medium text-gray-700">No expenses yet!</p>
+        <p className="text-sm text-gray-400 mt-1">Add your first expense to get started</p>
+        <a href="/add"
+          className="inline-block mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700"
+        >
+          ➕ Add First Expense
+        </a>
       </div>
     )
   }

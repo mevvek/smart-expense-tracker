@@ -1,5 +1,7 @@
 "use client"
 import AIInsights from "./components/AIInsights"
+import ExportButton from "./components/ExportButton"
+import LoadingSkeleton from "./components/LoadingSkeleton"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { getExpenses } from "../lib/api"
@@ -28,18 +30,19 @@ export default function Dashboard() {
     <main className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
 
-        {/* Total card */}
         <div className="bg-indigo-600 text-white rounded-2xl p-6 mb-4 shadow">
           <p className="text-indigo-200 text-sm">Total Spent</p>
           <p className="text-4xl font-bold mt-1">₹{total.toLocaleString("en-IN")}</p>
           <p className="text-indigo-200 text-sm mt-1">{expenses.length} transactions</p>
         </div>
 
-        {/* Stats Cards */}
+        <div className="flex justify-end mb-3">
+          <ExportButton expenses={expenses} />
+        </div>
+
         <StatsCards expenses={expenses} />
         <AIInsights expenses={expenses} />
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-4">
           {["list", "pie", "bar"].map(tab => (
             <button key={tab}
@@ -60,9 +63,8 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Tab Content */}
         {loading ? (
-          <p className="text-center text-gray-400 py-8">Loading...</p>
+          <LoadingSkeleton />
         ) : (
           <>
             {activeTab === "list" && <ExpenseList expenses={expenses} onDelete={fetchExpenses} />}
