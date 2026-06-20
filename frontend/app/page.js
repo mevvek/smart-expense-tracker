@@ -3,10 +3,14 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { getExpenses } from "../lib/api"
 import ExpenseList from "./components/ExpenseList"
+import CategoryChart from "./components/CategoryChart"
+import MonthlyChart from "./components/MonthlyChart"
+import StatsCards from "./components/StatsCards"
 
 export default function Dashboard() {
   const [expenses, setExpenses] = useState([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState("list")
 
   const fetchExpenses = async () => {
     setLoading(true)
@@ -20,26 +24,51 @@ export default function Dashboard() {
   const total = expenses.reduce((sum, e) => sum + e.amount, 0)
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
+    <main className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-indigo-600 text-white rounded-2xl p-6 mb-6 shadow">
+
+        {/* Total card */}
+        <div className="bg-indigo-600 text-white rounded-2xl p-6 mb-4 shadow">
           <p className="text-indigo-200 text-sm">Total Spent</p>
           <p className="text-4xl font-bold mt-1">₹{total.toLocaleString("en-IN")}</p>
           <p className="text-indigo-200 text-sm mt-1">{expenses.length} transactions</p>
         </div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-700">Recent Expenses</h2>
+
+        {/* Stats Cards */}
+        <StatsCards expenses={expenses} />
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-4">
+          {["list", "pie", "bar"].map(tab => (
+            <button key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium capitalize ${
+                activeTab === tab
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white text-gray-600 border"
+              }`}
+            >
+              {tab === "list" ? "📋 List" : tab === "pie" ? "🥧 Category" : "📊 Monthly"}
+            </button>
+          ))}
           <Link href="/add"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700"
+            className="ml-auto bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700"
           >
-            ➕ Add New
+            ➕ Add
           </Link>
         </div>
+
+        {/* Tab Content */}
         {loading ? (
           <p className="text-center text-gray-400 py-8">Loading...</p>
         ) : (
-          <ExpenseList expenses={expenses} onDelete={fetchExpenses} />
+          <>
+            {activeTab === "list" && <ExpenseList expenses={expenses} onDelete={fetchExpenses} />}
+            {activeTab === "pie" && <CategoryChart expenses={expenses} />}
+            {activeTab === "bar" && <MonthlyChart expenses={expenses} />}
+          </>
         )}
+
       </div>
     </main>
   )
