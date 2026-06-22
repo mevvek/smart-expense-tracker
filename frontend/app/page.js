@@ -26,11 +26,19 @@ export default function Dashboard() {
 
   const total = expenses.reduce((sum, e) => sum + e.amount, 0)
 
+  const greeting = () => {
+    const h = new Date().getHours()
+    if (h < 12) return "Good Morning! 👋"
+    if (h < 17) return "Good Afternoon! 👋"
+    return "Good Evening! 👋"
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
 
         <div className="bg-indigo-600 text-white rounded-2xl p-6 mb-4 shadow">
+          <p className="text-indigo-200 text-sm mb-1">{greeting()}</p>
           <p className="text-indigo-200 text-sm">Total Spent</p>
           <p className="text-4xl font-bold mt-1">₹{total.toLocaleString("en-IN")}</p>
           <p className="text-indigo-200 text-sm mt-1">{expenses.length} transactions</p>

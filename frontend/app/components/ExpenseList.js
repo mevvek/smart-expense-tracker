@@ -1,5 +1,7 @@
 "use client"
+import { useState } from "react"
 import { deleteExpense } from "../../lib/api"
+import ConfirmModal from "./ConfirmModal"
 
 const CATEGORY_COLORS = {
   Food: "bg-orange-100 text-orange-700",
@@ -12,11 +14,20 @@ const CATEGORY_COLORS = {
 }
 
 export default function ExpenseList({ expenses, onDelete }) {
-  const handleDelete = async (id) => {
-    if (confirm("Delete this expense?")) {
-      await deleteExpense(id)
-      onDelete()
-    }
+  const [showModal, setShowModal] = useState(false)
+  const [selectedId, setSelectedId] = useState(null)
+  const [selectedTitle, setSelectedTitle] = useState("")
+
+  const handleDeleteClick = (id, title) => {
+    setSelectedId(id)
+    setSelectedTitle(title)
+    setShowModal(true)
+  }
+
+  const handleConfirm = async () => {
+    await deleteExpense(selectedId)
+    setShowModal(false)
+    onDelete()
   }
 
   if (expenses.length === 0) {
@@ -35,30 +46,39 @@ export default function ExpenseList({ expenses, onDelete }) {
   }
 
   return (
-    <div className="space-y-3">
-      {expenses.map(expense => (
-        <div key={expense._id}
-          className="bg-white rounded-xl shadow-sm p-4 flex justify-between items-center"
-        >
-          <div className="flex items-center gap-3">
-            <span className={`text-xs font-medium px-2 py-1 rounded-full ${CATEGORY_COLORS[expense.category]}`}>
-              {expense.category}
-            </span>
-            <div>
-              <p className="font-medium text-gray-800">{expense.title}</p>
-              <p className="text-xs text-gray-400">
-                {new Date(expense.date).toLocaleDateString("en-IN")}
-              </p>
+    <>
+      {showModal && (
+        <ConfirmModal
+          message={`"${selectedTitle}" will be permanently deleted.`}
+          onConfirm={handleConfirm}
+          onCancel={() => setShowModal(false)}
+        />
+      )}
+      <div className="space-y-3">
+        {expenses.map(expense => (
+          <div key={expense._id}
+            className="bg-white rounded-xl shadow-sm p-4 flex justify-between items-center"
+          >
+            <div className="flex items-center gap-3">
+              <span className={`text-xs font-medium px-2 py-1 rounded-full ${CATEGORY_COLORS[expense.category]}`}>
+                {expense.category}
+              </span>
+              <div>
+                <p className="font-medium text-gray-800">{expense.title}</p>
+                <p className="text-xs text-gray-400">
+                  {new Date(expense.date).toLocaleDateString("en-IN")}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="font-bold text-green-600">₹{expense.amount}</span>
+              <button onClick={() => handleDeleteClick(expense._id, expense.title)}
+                className="text-red-400 hover:text-red-600 text-sm"
+              >🗑️</button>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="font-bold text-gray-800">₹{expense.amount}</span>
-            <button onClick={() => handleDelete(expense._id)}
-              className="text-red-400 hover:text-red-600 text-sm"
-            >🗑️</button>
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </>
   )
 }

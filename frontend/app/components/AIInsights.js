@@ -25,7 +25,7 @@ export default function AIInsights({ expenses }) {
       <div className="flex justify-between items-center mb-3">
         <div>
           <h3 className="font-semibold text-indigo-800">🤖 AI Insights</h3>
-          <p className="text-xs text-indigo-500 mt-0.5">Powered by Groq + LLaMA 3.3</p>
+          <p className="text-xs text-indigo-500 mt-0.5">Analyzes your spending & suggests ways to save</p>
         </div>
         <button
           onClick={fetchInsights}
@@ -60,7 +60,7 @@ export default function AIInsights({ expenses }) {
       )}
 
       {!shown && expenses.length > 0 && (
-        <p className="text-sm text-indigo-500">Click "Get Insights" to analyze your spending patterns 💡</p>
+        <p className="text-sm text-indigo-500">Click "Get Insights" to analyze your spending 💡</p>
       )}
     </div>
   )
