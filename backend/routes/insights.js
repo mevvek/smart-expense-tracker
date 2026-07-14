@@ -1,10 +1,11 @@
 const express = require("express")
 const router = express.Router()
 const Groq = require("groq-sdk")
+const auth = require("../middleware/auth")
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   try {
     const { expenses } = req.body
 

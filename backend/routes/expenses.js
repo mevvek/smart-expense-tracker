@@ -1,21 +1,25 @@
 const express = require("express")
 const router = express.Router()
 const Expense = require("../models/Expense")
+const auth = require("../middleware/auth")
 
-// GET — sabhi expenses lao
-router.get("/", async (req, res) => {
+// GET — sirf is user ke expenses
+router.get("/", auth, async (req, res) => {
   try {
-    const expenses = await Expense.find().sort({ date: -1 })
+    const expenses = await Expense.find({ userId: req.user.id }).sort({ date: -1 })
     res.json(expenses)
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })
 
-// POST — nayi expense add karo
-router.post("/", async (req, res) => {
+// POST — nayi expense — userId attach karo
+router.post("/", auth, async (req, res) => {
   try {
-    const expense = new Expense(req.body)
+    const expense = new Expense({
+      ...req.body,
+      userId: req.user.id
+    })
     await expense.save()
     res.status(201).json(expense)
   } catch (err) {
@@ -23,9 +27,13 @@ router.post("/", async (req, res) => {
   }
 })
 
-// DELETE — expense hatao
-router.delete("/:id", async (req, res) => {
+// DELETE — sirf apni expense delete kar sake
+router.delete("/:id", auth, async (req, res) => {
   try {
+    const expense = await Expense.findOne({ _id: req.params.id, userId: req.user.id })
+    if (!expense) {
+      return res.status(404).json({ error: "Expense not found" })
+    }
     await Expense.findByIdAndDelete(req.params.id)
     res.json({ message: "Expense deleted" })
   } catch (err) {
@@ -33,10 +41,10 @@ router.delete("/:id", async (req, res) => {
   }
 })
 
-// GET — stats for AI insights
-router.get("/stats", async (req, res) => {
+// GET stats — sirf is user ke
+router.get("/stats", auth, async (req, res) => {
   try {
-    const expenses = await Expense.find()
+    const expenses = await Expense.find({ userId: req.user.id })
     const total = expenses.reduce((sum, e) => sum + e.amount, 0)
     const byCategory = expenses.reduce((acc, e) => {
       acc[e.category] = (acc[e.category] || 0) + e.amount
