@@ -15,6 +15,9 @@ app.use("/api/expenses", expenseRoutes)
 const insightRoutes = require("./routes/insights")
 app.use("/api/insights", insightRoutes)
 
+const authRoutes = require("./routes/auth")
+app.use("/api/auth", authRoutes)
+
 // MongoDB connect
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
