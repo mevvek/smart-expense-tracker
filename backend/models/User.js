@@ -34,8 +34,20 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
-    // Token expiry time
+    // Verification token expiry
     verificationTokenExpires: {
+      type: Date,
+      default: null,
+    },
+
+    // Forgot Password token
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+
+    // Forgot Password token expiry
+    resetPasswordExpires: {
       type: Date,
       default: null,
     },

@@ -14,14 +14,18 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
     if (!form.email || !form.password) {
       setError("Please fill all fields.")
       return
     }
+
     setLoading(true)
     setError("")
+
     try {
       const data = await loginUser(form.email, form.password)
+
       if (data.token) {
         login(data.user, data.token)
         router.push("/")
@@ -38,38 +42,81 @@ export default function Login() {
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+
         <div className="text-center mb-8">
           <p className="text-4xl mb-2">💰</p>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back!</h1>
-          <p className="text-gray-500 text-sm mt-1">Login to your ExpenseAI account</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Welcome back!
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Login to your ExpenseAI account
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 space-y-4"
+        >
+
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
-            <input type="email" placeholder="you@example.com"
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Email
+            </label>
+
+            <input
+              type="email"
+              placeholder="you@example.com"
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={form.email}
-              onChange={e => setForm({...form, email: e.target.value})}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  email: e.target.value,
+                })
+              }
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
-            <input type="password" placeholder="••••••••"
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Password
+            </label>
+
+            <input
+              type="password"
+              placeholder="••••••••"
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={form.password}
-              onChange={e => setForm({...form, password: e.target.value})}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  password: e.target.value,
+                })
+              }
             />
+
+            {/* Forgot Password */}
+            <div className="flex justify-end mt-2">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-indigo-600 hover:text-indigo-700 hover:underline"
+              >
+                Forgot Password?
+              </Link>
+            </div>
           </div>
 
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-              <p className="text-red-600 text-sm">⚠️ {error}</p>
+              <p className="text-red-600 text-sm">
+                ⚠️ {error}
+              </p>
             </div>
           )}
 
-          <button type="submit" disabled={loading}
+          <button
+            type="submit"
+            disabled={loading}
             className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-all"
           >
             {loading ? "Logging in..." : "Login"}
@@ -77,8 +124,14 @@ export default function Login() {
 
           <p className="text-center text-sm text-gray-500">
             Don't have an account?{" "}
-            <Link href="/signup" className="text-indigo-600 font-medium hover:underline">Sign up</Link>
+            <Link
+              href="/signup"
+              className="text-indigo-600 font-medium hover:underline"
+            >
+              Sign up
+            </Link>
           </p>
+
         </form>
       </div>
     </main>
