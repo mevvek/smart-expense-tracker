@@ -9,11 +9,21 @@ import ExpenseList from "./components/ExpenseList"
 import CategoryChart from "./components/CategoryChart"
 import MonthlyChart from "./components/MonthlyChart"
 import StatsCards from "./components/StatsCards"
+import { useAuth } from "./context/AuthContext"
+import { useRouter } from "next/navigation"
 
 export default function Dashboard() {
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [expenses, setExpenses] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("list")
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login")
+    }
+  }, [user, authLoading, router])
 
   const fetchExpenses = async () => {
     setLoading(true)
@@ -22,7 +32,11 @@ export default function Dashboard() {
     setLoading(false)
   }
 
-  useEffect(() => { fetchExpenses() }, [])
+  useEffect(() => {
+    if (user) {
+      fetchExpenses()
+    }
+  }, [user])
 
   const total = expenses.reduce((sum, e) => sum + e.amount, 0)
 
@@ -32,6 +46,16 @@ export default function Dashboard() {
     if (h < 17) return "Good Afternoon! 👋"
     return "Good Evening! 👋"
   }
+
+  if (authLoading) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-400">Loading...</p>
+      </main>
+    )
+  }
+
+  if (!user) return null
 
   return (
     <main className="min-h-screen bg-gray-50 p-4">
