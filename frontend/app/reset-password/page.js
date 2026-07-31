@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "../../lib/api";
 
-export default function ResetPassword() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -77,10 +77,7 @@ export default function ResetPassword() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* Password */}
-
           <div className="relative">
-
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Enter new password"
@@ -96,13 +93,9 @@ export default function ResetPassword() {
             >
               {showPassword ? "Hide" : "Show"}
             </button>
-
           </div>
 
-          {/* Confirm Password */}
-
           <div className="relative">
-
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm password"
@@ -113,14 +106,11 @@ export default function ResetPassword() {
 
             <button
               type="button"
-              onClick={() =>
-                setShowConfirmPassword(!showConfirmPassword)
-              }
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-indigo-600 font-medium"
             >
               {showConfirmPassword ? "Hide" : "Show"}
             </button>
-
           </div>
 
           {error && (
@@ -156,5 +146,13 @@ export default function ResetPassword() {
 
       </div>
     </main>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
