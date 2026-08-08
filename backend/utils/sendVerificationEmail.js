@@ -9,7 +9,8 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendVerificationEmail = async (email, token) => {
-  const verifyLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+  const verifyLink =
+   `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
 
   const mailOptions = {
     from: `"Smart Expense Tracker" <${process.env.EMAIL_USER}>`,
