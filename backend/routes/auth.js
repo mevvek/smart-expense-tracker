@@ -164,7 +164,7 @@ router.get("/verify-email", async (req, res) => {
 
     await user.save();
 
-    return res.redirect("http://localhost:3000/login");
+    return res.redirect(`${process.env.FRONTEND_URL}/login`);
   } catch (err) {
     console.error("VERIFY ERROR:", err);
 
