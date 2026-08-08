@@ -15,8 +15,9 @@ const sendVerificationEmail = async (email, token) => {
     from: `"Smart Expense Tracker" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Verify your Smart Expense Tracker Account",
+
     html: `
-      <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto;">
+      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
         <h2>Welcome to Smart Expense Tracker 👋</h2>
 
         <p>Thank you for creating your account.</p>
@@ -40,7 +41,9 @@ const sendVerificationEmail = async (email, token) => {
           This verification link will expire in <b>30 minutes</b>.
         </p>
 
-        <p>If you didn't create this account, you can safely ignore this email.</p>
+        <p>
+          If you didn't create this account, you can safely ignore this email.
+        </p>
       </div>
     `,
   };

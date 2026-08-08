@@ -63,11 +63,17 @@ export async function registerUser(name, email, password) {
   const res = await fetch(`${API_URL}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password })
-  })
-  return res.json()
-}
+    body: JSON.stringify({ name, email, password }),
+  });
 
+  console.log("REGISTER STATUS:", res.status);
+
+  const data = await res.json();
+
+  console.log("REGISTER RESPONSE:", data);
+
+  return data;
+}
 export async function forgotPassword(email) {
   const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
     method: "POST",

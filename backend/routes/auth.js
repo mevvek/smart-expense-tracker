@@ -16,19 +16,23 @@ router.post("/register", async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ msg: "Please fill all fields" });
+      return res.status(400).json({
+        msg: "Please fill all fields",
+      });
     }
 
     if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ msg: "Password must be at least 6 characters" });
+      return res.status(400).json({
+        msg: "Password must be at least 6 characters",
+      });
     }
 
     const existing = await User.findOne({ email });
 
     if (existing) {
-      return res.status(400).json({ msg: "Email already registered" });
+      return res.status(400).json({
+        msg: "Email already registered",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -41,7 +45,9 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
       isVerified: false,
       verificationToken,
-      verificationTokenExpires: new Date(Date.now() + 30 * 60 * 1000),
+      verificationTokenExpires: new Date(
+        Date.now() + 30 * 60 * 1000
+      ),
     });
 
     await user.save();
@@ -51,7 +57,6 @@ router.post("/register", async (req, res) => {
     return res.status(201).json({
       msg: "Registration successful! Please check your email to verify your account.",
     });
-
   } catch (err) {
     console.error("REGISTER ERROR:", err);
 
@@ -117,7 +122,6 @@ router.post("/login", async (req, res) => {
         email: user.email,
       },
     });
-
   } catch (err) {
     console.error("LOGIN ERROR:", err);
 
@@ -147,7 +151,10 @@ router.get("/verify-email", async (req, res) => {
       return res.status(400).send("Invalid or expired verification link.");
     }
 
-    if (user.verificationTokenExpires < new Date()) {
+    if (
+      !user.verificationTokenExpires ||
+      user.verificationTokenExpires < new Date()
+    ) {
       return res.status(400).send("Verification link has expired.");
     }
 
@@ -158,9 +165,9 @@ router.get("/verify-email", async (req, res) => {
     await user.save();
 
     return res.redirect("http://localhost:3000/login");
-
   } catch (err) {
     console.error("VERIFY ERROR:", err);
+
     return res.status(500).send("Server Error");
   }
 });
@@ -180,7 +187,6 @@ router.post("/forgot-password", async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    // Security: same response even if user doesn't exist
     if (!user) {
       return res.json({
         msg: "If an account exists with this email, a password reset link has been sent.",
@@ -190,7 +196,9 @@ router.post("/forgot-password", async (req, res) => {
     const resetToken = crypto.randomBytes(32).toString("hex");
 
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000);
+    user.resetPasswordExpires = new Date(
+      Date.now() + 30 * 60 * 1000
+    );
 
     await user.save();
 
@@ -199,7 +207,6 @@ router.post("/forgot-password", async (req, res) => {
     return res.json({
       msg: "If an account exists with this email, a password reset link has been sent.",
     });
-
   } catch (err) {
     console.error("FORGOT PASSWORD ERROR:", err);
 
@@ -239,7 +246,10 @@ router.post("/reset-password", async (req, res) => {
       });
     }
 
-    if (user.resetPasswordExpires < new Date()) {
+    if (
+      !user.resetPasswordExpires ||
+      user.resetPasswordExpires < new Date()
+    ) {
       return res.status(400).json({
         msg: "Reset link has expired.",
       });
@@ -256,7 +266,6 @@ router.post("/reset-password", async (req, res) => {
     return res.json({
       msg: "Password reset successful. Please login.",
     });
-
   } catch (err) {
     console.error("RESET PASSWORD ERROR:", err);
 
