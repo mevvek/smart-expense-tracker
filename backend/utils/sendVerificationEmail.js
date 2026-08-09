@@ -1,19 +1,17 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  family: 4,
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  family: 4, // force IPv4
 });
 
 const sendVerificationEmail = async (email, token) => {
   const verifyLink =
-   `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+    `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
 
   const mailOptions = {
     from: `"Smart Expense Tracker" <${process.env.EMAIL_USER}>`,
