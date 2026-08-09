@@ -1,54 +1,47 @@
-const nodemailer = require("nodemailer");
+const SibApiV3Sdk = require("@getbrevo/brevo");
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  family: 4,
-});
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+apiInstance.setApiKey(
+  SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY
+);
 
 const sendResetPasswordEmail = async (email, token) => {
-  const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-  const mailOptions = {
-    from: `"Smart Expense Tracker" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Reset Your Smart Expense Tracker Password",
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;">
-        <h2>Reset Password 🔐</h2>
+  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 
-        <p>We received a request to reset your password.</p>
-
-        <p>Click the button below to create a new password.</p>
-
-        <a href="${resetLink}"
-          style="
-            background:#dc2626;
-            color:white;
-            padding:12px 22px;
-            text-decoration:none;
-            border-radius:6px;
-            display:inline-block;
-            font-weight:bold;
-          ">
-          Reset Password
-        </a>
-
-        <p style="margin-top:20px;">
-          This link will expire in <b>30 minutes</b>.
-        </p>
-
-        <p>If you didn't request this, you can safely ignore this email.</p>
-      </div>
-    `,
+  sendSmtpEmail.subject = "Reset Your Smart Expense Tracker Password";
+  sendSmtpEmail.sender = {
+    name: "Smart Expense Tracker",
+    email: process.env.EMAIL_USER,
   };
+  sendSmtpEmail.to = [{ email }];
+  sendSmtpEmail.htmlContent = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;">
+      <h2>Reset Password 🔐</h2>
+      <p>We received a request to reset your password.</p>
+      <p>Click the button below to create a new password.</p>
+      <a href="${resetLink}"
+        style="
+          background:#dc2626;
+          color:white;
+          padding:12px 22px;
+          text-decoration:none;
+          border-radius:6px;
+          display:inline-block;
+          font-weight:bold;
+        ">
+        Reset Password
+      </a>
+      <p style="margin-top:20px;">
+        This link will expire in <b>30 minutes</b>.
+      </p>
+      <p>If you didn't request this, you can safely ignore this email.</p>
+    </div>
+  `;
 
-  await transporter.sendMail(mailOptions);
+  await apiInstance.sendTransacEmail(sendSmtpEmail);
 
   console.log("✅ Password reset email sent to:", email);
 };
