@@ -1,20 +1,9 @@
-const brevo = require("@getbrevo/brevo");
-
-const apiInstance = new brevo.TransactionalEmailsApi();
-apiInstance.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
+const axios = require("axios");
 
 const sendResetPasswordEmail = async (email, token) => {
   const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-  const sendSmtpEmail = new brevo.SendSmtpEmail();
-
-  sendSmtpEmail.subject = "Reset Your Smart Expense Tracker Password";
-  sendSmtpEmail.sender = {
-    name: "Smart Expense Tracker",
-    email: process.env.EMAIL_USER,
-  };
-  sendSmtpEmail.to = [{ email }];
-  sendSmtpEmail.htmlContent = `
+  const htmlContent = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;">
       <h2>Reset Password 🔐</h2>
       <p>We received a request to reset your password.</p>
@@ -38,7 +27,22 @@ const sendResetPasswordEmail = async (email, token) => {
     </div>
   `;
 
-  await apiInstance.sendTransacEmail(sendSmtpEmail);
+  await axios.post(
+    "https://api.brevo.com/v3/smtp/email",
+    {
+      sender: { name: "Smart Expense Tracker", email: process.env.EMAIL_USER },
+      to: [{ email }],
+      subject: "Reset Your Smart Expense Tracker Password",
+      htmlContent,
+    },
+    {
+      headers: {
+        "api-key": process.env.BREVO_API_KEY,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    }
+  );
 
   console.log("✅ Password reset email sent to:", email);
 };

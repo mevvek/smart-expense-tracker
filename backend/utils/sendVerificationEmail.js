@@ -1,20 +1,9 @@
-const brevo = require("@getbrevo/brevo");
-
-const apiInstance = new brevo.TransactionalEmailsApi();
-apiInstance.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
+const axios = require("axios");
 
 const sendVerificationEmail = async (email, token) => {
   const verifyLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
 
-  const sendSmtpEmail = new brevo.SendSmtpEmail();
-
-  sendSmtpEmail.subject = "Verify your Smart Expense Tracker Account";
-  sendSmtpEmail.sender = {
-    name: "Smart Expense Tracker",
-    email: process.env.EMAIL_USER,
-  };
-  sendSmtpEmail.to = [{ email }];
-  sendSmtpEmail.htmlContent = `
+  const htmlContent = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6;">
       <h2>Welcome to Smart Expense Tracker 👋</h2>
       <p>Thank you for creating your account.</p>
@@ -40,7 +29,22 @@ const sendVerificationEmail = async (email, token) => {
     </div>
   `;
 
-  await apiInstance.sendTransacEmail(sendSmtpEmail);
+  await axios.post(
+    "https://api.brevo.com/v3/smtp/email",
+    {
+      sender: { name: "Smart Expense Tracker", email: process.env.EMAIL_USER },
+      to: [{ email }],
+      subject: "Verify your Smart Expense Tracker Account",
+      htmlContent,
+    },
+    {
+      headers: {
+        "api-key": process.env.BREVO_API_KEY,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    }
+  );
 
   console.log("✅ Verification email sent to:", email);
 };
