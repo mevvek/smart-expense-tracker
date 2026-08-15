@@ -28,6 +28,18 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
+    // 6-digit Email Verification OTP
+    verificationOTP: {
+      type: String,
+      default: null,
+    },
+
+    // OTP expiry
+    verificationOTPExpires: {
+      type: Date,
+      default: null,
+    },
+
     // Verification token
     verificationToken: {
       type: String,

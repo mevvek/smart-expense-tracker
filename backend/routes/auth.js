@@ -37,28 +37,97 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    // Generate 6-digit OTP
+    const verificationOTP = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
 
     const user = new User({
       name,
       email,
       password: hashedPassword,
       isVerified: false,
-      verificationToken,
-      verificationTokenExpires: new Date(
-        Date.now() + 30 * 60 * 1000
+      verificationOTP,
+      verificationOTPExpires: new Date(
+        Date.now() + 10 * 60 * 1000
       ),
     });
 
     await user.save();
 
-    await sendVerificationEmail(email, verificationToken);
+    await sendVerificationEmail(email, verificationOTP);
 
     return res.status(201).json({
-      msg: "Registration successful! Please check your email to verify your account.",
+      msg: "OTP sent to your email. Please enter the OTP to verify your account.",
     });
   } catch (err) {
     console.error("REGISTER ERROR:", err);
+
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message,
+    });
+  }
+});
+
+// =======================
+// VERIFY OTP
+// =======================
+router.post("/verify-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        msg: "Email and OTP are required.",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        msg: "User not found.",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        msg: "Email is already verified.",
+      });
+    }
+
+    if (
+      !user.verificationOTP ||
+      user.verificationOTPExpires < new Date()
+    ) {
+      return res.status(400).json({
+        msg: "OTP has expired. Please register again.",
+      });
+    }
+
+    if (user.verificationOTP !== otp) {
+      return res.status(400).json({
+        msg: "Invalid OTP.",
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationOTP = null;
+    user.verificationOTPExpires = null;
+
+    await user.save();
+
+    return res.json({
+      msg: "Account verified successfully.",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    console.error("VERIFY OTP ERROR:", err);
 
     return res.status(500).json({
       msg: "Server error",
@@ -129,46 +198,6 @@ router.post("/login", async (req, res) => {
       msg: "Server error",
       error: err.message,
     });
-  }
-});
-
-// =======================
-// VERIFY EMAIL
-// =======================
-router.get("/verify-email", async (req, res) => {
-  try {
-    const { token } = req.query;
-
-    if (!token) {
-      return res.status(400).send("Invalid verification link.");
-    }
-
-    const user = await User.findOne({
-      verificationToken: token,
-    });
-
-    if (!user) {
-      return res.status(400).send("Invalid or expired verification link.");
-    }
-
-    if (
-      !user.verificationTokenExpires ||
-      user.verificationTokenExpires < new Date()
-    ) {
-      return res.status(400).send("Verification link has expired.");
-    }
-
-    user.isVerified = true;
-    user.verificationToken = null;
-    user.verificationTokenExpires = null;
-
-    await user.save();
-
-    return res.redirect(`${process.env.FRONTEND_URL}/login`);
-  } catch (err) {
-    console.error("VERIFY ERROR:", err);
-
-    return res.status(500).send("Server Error");
   }
 });
 

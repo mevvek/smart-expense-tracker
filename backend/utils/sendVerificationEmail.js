@@ -1,28 +1,28 @@
 const axios = require("axios");
 
-const sendVerificationEmail = async (email, token) => {
-  const verifyLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
-
+const sendVerificationEmail = async (email, otp) => {
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6;">
       <h2>Welcome to Smart Expense Tracker 👋</h2>
+
       <p>Thank you for creating your account.</p>
-      <p>Please click the button below to verify your email address.</p>
-      <a href="${verifyLink}"
-        style="
-          background:#2563eb;
-          color:#ffffff;
-          padding:12px 22px;
-          text-decoration:none;
-          border-radius:6px;
-          display:inline-block;
-          font-weight:bold;
-        ">
-        Verify Email
-      </a>
-      <p style="margin-top:20px;">
-        This verification link will expire in <b>30 minutes</b>.
+
+      <p>Your 6-digit verification OTP is:</p>
+
+      <div style="
+        font-size:32px;
+        font-weight:bold;
+        letter-spacing:8px;
+        color:#2563eb;
+        margin:20px 0;
+      ">
+        ${otp}
+      </div>
+
+      <p>
+        This OTP will expire in <b>10 minutes</b>.
       </p>
+
       <p>
         If you didn't create this account, you can safely ignore this email.
       </p>
@@ -32,9 +32,12 @@ const sendVerificationEmail = async (email, token) => {
   await axios.post(
     "https://api.brevo.com/v3/smtp/email",
     {
-      sender: { name: "Smart Expense Tracker", email: process.env.EMAIL_USER },
+      sender: {
+        name: "Smart Expense Tracker",
+        email: process.env.EMAIL_USER,
+      },
       to: [{ email }],
-      subject: "Verify your Smart Expense Tracker Account",
+      subject: "Your Smart Expense Tracker Verification OTP",
       htmlContent,
     },
     {
@@ -46,7 +49,7 @@ const sendVerificationEmail = async (email, token) => {
     }
   );
 
-  console.log("✅ Verification email sent to:", email);
+  console.log("✅ Verification OTP sent to:", email);
 };
 
 module.exports = sendVerificationEmail;
