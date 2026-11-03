@@ -1,4 +1,12 @@
-const axios = require("axios");
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 const sendResetPasswordEmail = async (email, token) => {
   const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
@@ -27,22 +35,12 @@ const sendResetPasswordEmail = async (email, token) => {
     </div>
   `;
 
-  await axios.post(
-    "https://api.brevo.com/v3/smtp/email",
-    {
-      sender: { name: "Smart Expense Tracker", email: process.env.EMAIL_USER },
-      to: [{ email }],
-      subject: "Reset Your Smart Expense Tracker Password",
-      htmlContent,
-    },
-    {
-      headers: {
-        "api-key": process.env.BREVO_API_KEY,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    }
-  );
+  await transporter.sendMail({
+    from: `"Smart Expense Tracker" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Reset Your Smart Expense Tracker Password",
+    html: htmlContent,
+  });
 
   console.log("✅ Password reset email sent to:", email);
 };

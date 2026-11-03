@@ -29,7 +29,7 @@ router.post("/register", async (req, res) => {
 
     const existing = await User.findOne({ email });
 
-    if (existing) {
+    if (existing && existing.isVerified) {
       return res.status(400).json({
         msg: "Email already registered",
       });
@@ -42,20 +42,29 @@ router.post("/register", async (req, res) => {
       100000 + Math.random() * 900000
     ).toString();
 
-    const user = new User({
-      name,
-      email,
-      password: hashedPassword,
-      isVerified: false,
-      verificationOTP,
-      verificationOTPExpires: new Date(
-        Date.now() + 10 * 60 * 1000
-      ),
-    });
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-    await user.save();
-
+    // Pehle email bhejein taaki fail hone par adhura user DB me block na ho
     await sendVerificationEmail(email, verificationOTP);
+
+    if (existing && !existing.isVerified) {
+      // Agar pehle OTP fail hua tha, to usi unverified user ko update karein
+      existing.name = name;
+      existing.password = hashedPassword;
+      existing.verificationOTP = verificationOTP;
+      existing.verificationOTPExpires = otpExpiry;
+      await existing.save();
+    } else {
+      const user = new User({
+        name,
+        email,
+        password: hashedPassword,
+        isVerified: false,
+        verificationOTP,
+        verificationOTPExpires: otpExpiry,
+      });
+      await user.save();
+    }
 
     return res.status(201).json({
       msg: "OTP sent to your email. Please enter the OTP to verify your account.",
