@@ -95,40 +95,42 @@ router.post("/verify-otp", async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({
-        msg: "User not found.",
-      });
+      return res.status(400).json({ msg: "User not found." });
     }
 
     if (user.isVerified) {
-      return res.status(400).json({
-        msg: "Email is already verified.",
-      });
+      return res.status(400).json({ msg: "Email is already verified." });
     }
 
-    if (
-      !user.verificationOTP ||
-      user.verificationOTPExpires < new Date()
-    ) {
-      return res.status(400).json({
-        msg: "OTP has expired. Please register again.",
-      });
+    if (!user.verificationOTP || user.verificationOTPExpires < new Date()) {
+      return res.status(400).json({ msg: "OTP has expired. Please register again." });
     }
 
     if (user.verificationOTP !== otp) {
-      return res.status(400).json({
-        msg: "Invalid OTP.",
-      });
+      return res.status(400).json({ msg: "Invalid OTP." });
     }
 
     user.isVerified = true;
     user.verificationOTP = null;
     user.verificationOTPExpires = null;
-
     await user.save();
+
+    // Token generate karein taaki direct login ho jaye
+    const token = jwt.sign(
+      {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     return res.json({
       msg: "Account verified successfully.",
+      token, // Token return kar rahe hain
       user: {
         id: user._id,
         name: user.name,
@@ -137,11 +139,7 @@ router.post("/verify-otp", async (req, res) => {
     });
   } catch (err) {
     console.error("VERIFY OTP ERROR:", err);
-
-    return res.status(500).json({
-      msg: "Server error",
-      error: err.message,
-    });
+    return res.status(500).json({ msg: "Server error", error: err.message });
   }
 });
 

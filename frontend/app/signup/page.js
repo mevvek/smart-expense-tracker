@@ -70,7 +70,7 @@ export default function Signup() {
     newOtp[index] = value.slice(-1)
     setOtp(newOtp)
 
-    // Move to next box
+    // Move to next box automatically
     if (value && index < 5) {
       document.getElementById(`otp-${index + 1}`)?.focus()
     }
@@ -96,11 +96,14 @@ export default function Signup() {
     try {
       const data = await verifyOTP(form.email, otpValue)
 
-      if (data.msg === "Account verified successfully.") {
-        setSuccess("Account verified successfully! Redirecting to login...")
+      if (data.token) {
+        // Save auth token to localStorage for direct access
+        localStorage.setItem("token", data.token)
+        setSuccess("Account verified successfully! Redirecting...")
 
         setTimeout(() => {
-          router.push("/login")
+          // Redirect directly to your dashboard or main app page
+          router.push("/") // Change to "/dashboard" if your main page is /dashboard
         }, 1200)
       } else {
         setError(data.msg || "Invalid OTP.")
@@ -206,7 +209,8 @@ export default function Signup() {
                     onChange={(e) =>
                       handleOtpChange(e.target.value, index)
                     }
-                    className="w-11 h-12 text-center text-lg font-bold border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    // Added font-bold and dark text color for high visibility
+                    className="w-11 h-12 text-center text-xl font-bold text-gray-900 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                   />
                 ))}
               </div>
@@ -246,7 +250,7 @@ export default function Signup() {
                 ? "Verifying..."
                 : "Creating account..."
               : otpSent
-                ? "Sign Up"
+                ? "Verify & Continue"
                 : "Create Account"}
           </button>
 
